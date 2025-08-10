@@ -5,7 +5,7 @@ import { useState } from 'react';
 const App = () => {
   const [team, setTeam] = useState([]);
   const [money, setMoney] = useState(100);
-  const [zombieFighters] = useState([
+  const [zombieFighters, setZombieFighters] = useState([
     {
       id: 1,
       name: 'Survivor',
@@ -88,15 +88,58 @@ const App = () => {
     },
   ])
 
+  // Step 6
   const handleAddFighter = (fighter) => {
-    setTeam(() => [fighter])
+    if (money < fighter.price) {
+      console.log("Not enough money!")
+    }
+    setTeam((startList) => [...startList, fighter])
+    setZombieFighters((zombieList) => {
+      return zombieList.filter((fighterInList) => {
+        return fighterInList.id !== fighter.id;
+      });
+    }); 
+    setMoney(money - fighter.price);
   }
+
+  const handleRemoveFromTeam = (idToRemove) => {
+    setTeam((updatedTeam) => updatedTeam.filter((teamMate) => teamMate.id !== idToRemove));
+    
+    const removed = team.find(teamMate => teamMate.id === idToRemove);
+    if (!removed) return;
+    setTeam(previous => previous.filter(teamMate => teamMate.id !== idToRemove));
+    setZombieFighters(previous => [...previous, removed]);
+    setMoney(previous => (previous + removed.price));
+  }
+
+  const totalStrength = team.reduce((sum, teamMate) => sum + teamMate.strength, 0) 
+  const totalAgility = team.reduce((sum, teamMate) => sum + teamMate.agility, 0)
 
   return (
     <>
     <h1>Zombie Fighters</h1>
     <h2>Money: ${money}</h2>
+    <h2>Team Strength: {totalStrength}</h2>
+    <h2>Total Agility: {totalAgility}</h2>
+      
+    <h2>Zombie Team:</h2>
+      {team.length === 0 ? (<p>Pick some teammates!</p>) : (<ul>
+        {team.map((teamMate) => (
+          <li key={teamMate.id}>
+          <img src={teamMate.img} alt={teamMate.name}/>
+          <p>Name: {teamMate.name}</p>
+          <p>Price: ${teamMate.price}</p>
+          <p>Strength: {teamMate.strength}</p>
+          <p>Agility: {teamMate.agility}</p>
+          <button onClick={() => handleRemoveFromTeam(teamMate.id)}>Remove Teammate</button>
+          </li>
+        ))}
+      </ul>
+      )}
+
     <div>
+
+    <h2>Fighters:</h2>
     <ul>
       {zombieFighters.map((fighter) => (
         <li key={fighter.id}>
@@ -105,7 +148,7 @@ const App = () => {
           <p>Price: ${fighter.price}</p>
           <p>Strength: {fighter.strength}</p>
           <p>Agility: {fighter.agility}</p>
-          <button onClick={() => handleAddFighter(fighter)}>Add</button> //fighter first defined in .map
+          <button onClick={() => handleAddFighter(fighter)}>Add</button>
         </li>
       ))}
     </ul>
