@@ -91,14 +91,16 @@ const App = () => {
   // Step 6
   const handleAddFighter = (fighter) => {
     if (money < fighter.price) {
-      console.log("Not enough money!")
-    }
+      console.log("Not enough money!");
+      return;
+    } else {
     setTeam((startList) => [...startList, fighter])
     setZombieFighters((zombieList) => {
       return zombieList.filter((fighterInList) => {
         return fighterInList.id !== fighter.id;
       });
-    }); 
+      });
+    }; 
     setMoney(money - fighter.price);
   }
 
